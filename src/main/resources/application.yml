@@ -1,0 +1,55 @@
+spring:
+  main:
+    web-application-type: servlet
+  web:
+    resources:
+      cache:
+        use-last-modified: true
+        period: 3600
+        cache control:
+          max-age: 7200
+      static-locations:
+        - "classpath:/static"
+        - "file:D:/code/picture"
+  profiles:
+    active: dev
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+    hidden-method:
+      filter:
+        enabled: true
+    static-path-pattern: "/www/wwwroot/maskmanger/static"
+  config:
+    import:
+      - classpath:/database.yml
+      - classpath:/redis.yml
+      - classpath:/swagger.yml
+      - classpath:/rabbitmq.yml
+  application:
+    name: man
+
+server:
+  port: 9997
+
+logging:
+  pattern:
+    dateformat: mm:ss.SSS
+  level:
+    com: debug
+
+mybatis-plus:
+  type-aliases-package: com.man.entity # 别名扫描包
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    #驼峰
+    map-underscore-to-camel-case: true
+    #二级缓存
+    cache-enabled: false
+  global-config:
+    db-config:
+      id-type: assign_id
+      #只更新非空
+      update-strategy: not_null
+
+

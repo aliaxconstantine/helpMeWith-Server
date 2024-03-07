@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.man.mapper.TasksMapper">
+
+    <select id="getAllByStatusTasks" resultType="com.man.entity.core.Task">
+        SELECT * FROM task
+                 WHERE status = #{status} AND initiator_id = #{userId}
+                ORDER BY date DESC
+    </select>
+    <select id="getAllByTypeTasks" resultType="com.man.entity.core.Task">
+        SELECT t.*
+        FROM task t
+                 JOIN task_categoriy tc ON CONCAT(',', #{type}, ',') REGEXP CONCAT(',', tc.id, ',')
+        WHERE tc.category = #{type} AND t.status = 2
+        ORDER BY t.date DESC
+        LIMIT 20 OFFSET #{pageNum};
+    </select>
+    <select id="getByKeyTasks" resultType="com.man.entity.core.Task">
+        SELECT * FROM (
+                          SELECT t.*
+                          FROM task t JOIN t_user tu ON t.initiator_id = tu.id
+                          WHERE tu.nick_name LIKE CONCAT(#{key}, '%')
+                             OR t.name LIKE CONCAT('%', #{key}, '%')
+                             OR t.description LIKE CONCAT('%', #{key}, '%')
+                             OR t.type LIKE CONCAT('%',#{key},'%')
+                          ORDER BY t.date DESC
+                          LIMIT 20 OFFSET #{pageNum}
+                      ) AS result
+        UNION
+        SELECT * FROM (
+                          SELECT t.*
+                          FROM task t JOIN t_user tu ON t.assignee_id = tu.id
+                          WHERE tu.nick_name LIKE CONCAT(#{key}, '%')
+                             OR t.name LIKE CONCAT('%', #{key}, '%')
+                             OR t.description LIKE CONCAT('%', #{key}, '%')
+                             OR t.type LIKE CONCAT('%',#{key},'%')
+                          ORDER BY t.date DESC
+                          LIMIT 20 OFFSET #{pageNum}
+                      ) AS result2
+        ORDER BY date DESC
+        LIMIT 20 OFFSET #{pageNum};
+    </select>
+
+
+</mapper>

@@ -1,0 +1,14 @@
+spring:
+  data:
+    redis:
+      host: 39.100.140.88
+      port: 6379
+      password: kstdalxy123
+  datasource:
+    url: jdbc:mysql://39.100.140.88:3306/manager
+    username: manager
+    password: NHNnC6tFeJpF7xGA
+  rabbitmq:
+    username: aliax
+    password: kstdalxy123
+    host: 39.100.140.88

@@ -1,0 +1,22 @@
+spring:
+  rabbitmq:
+    port: 5672
+    virtual-host: /
+    connection-timeout: 1s
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000ms
+        multiplier: 1
+        max-attempts: 3
+    listener:
+      simple:
+        prefetch: 1
+        acknowledge-mode: none
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          multiplier: 1
+          max-attempts: 3
+          stateless: true
+
