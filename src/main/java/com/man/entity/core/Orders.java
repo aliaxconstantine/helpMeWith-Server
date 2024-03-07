@@ -32,5 +32,4 @@ public class Orders {
 
   @Schema(description = "订单状态")
   private String status;
-
 }

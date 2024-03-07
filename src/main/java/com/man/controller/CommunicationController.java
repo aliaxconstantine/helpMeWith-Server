@@ -49,6 +49,5 @@ public class CommunicationController {
     }
 
     //发送图片
-
 }
 

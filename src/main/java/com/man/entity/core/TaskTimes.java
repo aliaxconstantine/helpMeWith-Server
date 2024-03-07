@@ -1,5 +1,6 @@
 package com.man.entity.core;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,21 +11,28 @@ import java.sql.Timestamp;
 @Schema(description = "任务时间对象")
 public class TaskTimes {
 
-  @Schema(description = "ID")
+  @NotNull(message = "ID不能为空")
+  @Schema(description = "ID", example = "1")
   private Long id;
 
-  @Schema(description = "创建时间")
+  @NotNull(message = "创建时间不能为空")
+  @Schema(description = "创建时间", example = "2022-01-01T12:00:00")
   private Timestamp createTime;
 
-  @Schema(description = "获取时间")
+  @NotNull(message = "获取时间不能为空")
+  @Schema(description = "获取时间", example = "2022-01-02T10:00:00")
   private Timestamp getTime;
 
-  @Schema(description = "完成时间")
+  @NotNull(message = "完成时间不能为空")
+  @Schema(description = "完成时间", example = "2022-01-03T15:00:00")
   private Timestamp finishTime;
-  @Schema(description = "订单id")
+
+  @NotNull(message = "订单ID不能为空")
+  @Schema(description = "订单ID", example = "100")
   private Long taskId;
-  @Schema(description = "希望完成时间")
+
+  @NotNull(message = "希望完成时间不能为空")
+  @Schema(description = "希望完成时间", example = "2022-02-01T23:59:59")
   private Timestamp dueTime;
 }
-
 

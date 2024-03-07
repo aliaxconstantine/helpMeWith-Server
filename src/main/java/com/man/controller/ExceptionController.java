@@ -16,14 +16,6 @@ import org.springframework.web.bind.annotation.*;
 //异常处理器
 public class ExceptionController implements ErrorController {
     @ResponseBody
-    @GetMapping("/error")
-    @ExceptionHandler(Exception.class)
-    public HttpResult handleRuntimeException(Exception ex) {
-        //TODO:将调用堆栈放入日志文件
-        return HttpResult.builder().code(ErrorCodeEnum.FAIL.code).msg(HttpStatus.INTERNAL_SERVER_ERROR +"错误为:"+ex.getMessage())
-                .build();
-    }
-    @ResponseBody
     @ExceptionHandler(RedisConnectionFailureException.class)
     public ResponseEntity<?> handleRedisConnectionFailureException(RedisConnectionFailureException ex) {
         log.error(ex.getMessage());
