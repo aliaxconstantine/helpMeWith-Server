@@ -11,5 +11,7 @@ public class RabbitMessage {
     public static final String SYSTEM_INFO_QUEUE = "system.info.queue";
     public static final String SYSTEM_INFO_ROUTING_KEY = "system.info";
 
+    public static final String CHAT_MESSAGE_UPDATE_QUEUE = "chat.message.update.queue";
+    public static final String CHAT_MESSAGE_UPDATE_ROUTING_KEY = "chat.message.update";
 
 }

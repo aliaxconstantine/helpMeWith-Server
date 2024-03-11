@@ -19,10 +19,10 @@ spring:
     hidden-method:
       filter:
         enabled: true
-    static-path-pattern: "/www/wwwroot/maskmanger/static"
+    static-path-pattern: "/data/**"
   config:
     import:
-      - classpath:/database.yml
+      - classpath:/private.yml
       - classpath:/redis.yml
       - classpath:/swagger.yml
       - classpath:/rabbitmq.yml

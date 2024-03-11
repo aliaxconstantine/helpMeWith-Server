@@ -1,4 +1,4 @@
-package com.man.config.streamFilter;
+package com.man.utils;
 
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;

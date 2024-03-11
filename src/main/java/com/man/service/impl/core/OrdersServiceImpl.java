@@ -2,7 +2,7 @@ package com.man.service.impl.core;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.man.dto.*;
-import com.man.entity.core.Orders;
+import com.man.entity.core.TOrder;
 import com.man.entity.core.RefundRecord;
 import com.man.mapper.OrdersMapper;
 import com.man.service.CoreService.OrdersService;
@@ -20,7 +20,7 @@ import java.util.Objects;
 * @createDate 2023-10-14 17:53:56
 */
 @Service
-public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements OrdersService {
+public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> implements OrdersService {
 
     private final RabbitTemplate rabbitTemplate;
     private final RefundRecordService refundRecordService;
@@ -33,7 +33,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     public HttpResult processPayment(String orderId) {
         // 根据订单号查询订单信息
-        Orders order = getById(orderId);
+        TOrder order = getById(orderId);
         if (order == null) {
             return HttpResult.builder().msg("订单不存在").code(ErrorCodeEnum.FAIL.code).build();
         }
@@ -47,13 +47,13 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         //修改任务状态
         rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME,RabbitMessage.ORDER_UPDATE_ROUTING_KEY,order.getProductId());
         // 返回支付成功的响应
-        return HttpResult.builder().msg("支付成功").code(ErrorCodeEnum.SUCCESS.code).build();
+        return HttpResult.builder().data(true).msg("支付成功").code(ErrorCodeEnum.SUCCESS.code).build();
     }
 
     // 退款申请
     public HttpResult unPayment(String orderId) {
         // 根据订单编号查询订单信息
-        Orders order = getById(orderId);
+        TOrder order = getById(orderId);
         if (order == null) {
             // 如果订单不存在，返回错误提示
             return HttpResult.fail("订单不存在");
@@ -92,7 +92,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         // 执行退款操作，例如调用支付系统的退款接口
 
         // 更新订单状态为“已退款”
-        Orders order = getById(refundRecord.getOrderId());
+        TOrder order = getById(refundRecord.getOrderId());
         order.setStatus(OrderEnum.REFUNDED.status);
         boolean ifUpTrue = update().update(order);
         if(!ifUpTrue){
@@ -108,6 +108,15 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         // 执行一些后续操作，例如向用户发送退款成功通知等
 
         return HttpResult.success(refundRecord);
+    }
+
+    @Override
+    public HttpResult getOrders(String orderId) {
+        TOrder tOrder = getById(orderId);
+        if(tOrder == null){
+           return HttpResult.fail("错误的id");
+        }
+        return HttpResult.success(tOrder);
     }
 }
 

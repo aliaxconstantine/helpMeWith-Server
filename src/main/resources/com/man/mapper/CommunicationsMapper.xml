@@ -8,6 +8,6 @@
         SELECT * FROM communication WHERE
             (sender_user_id = #{userId} AND receiver_user_id = #{otherId}) OR
             (sender_user_id = #{otherId} AND receiver_user_id = #{userId})
-            ORDER BY data
+            ORDER BY date
     </select>
 </mapper>

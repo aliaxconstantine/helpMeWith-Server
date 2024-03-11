@@ -110,7 +110,6 @@ public class SecurityConfiguration {
                         .requestMatchers("/upload").hasAuthority("/upload")
                         .requestMatchers("/communication").hasAuthority("/communication")
                         .anyRequest().authenticated()
-
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 //只能单用户登录

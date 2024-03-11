@@ -11,10 +11,11 @@ public class TaskForm {
     private String[] imageUrl;
     private String name;
     private String description;
-    private Long price;
+    private Double price;
     private String[] type;
     private String bigType;
     private Date dueTime;
     private Double x;
     private Double y;
+    private String city;
 }

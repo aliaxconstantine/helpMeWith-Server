@@ -14,7 +14,5 @@ public class SystemConstants {
     //不需要鉴权的url
     public static final String[] publicUrls = {"/data/**","/user/register","/v3/api-docs","/user/code",
             "/phoneLogin", "/userLogin","/swagger-ui.html","/task/tasks",
-            "/swagger-ui/index.html","/user/pwdCode","/Token/token"};
-
-
+            "/swagger-ui/index.html","/user/pwdCode","/Token/token","/websocket/**"};
 }

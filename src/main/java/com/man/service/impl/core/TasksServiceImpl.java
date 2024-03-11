@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.man.dto.*;
 import com.man.entity.core.*;
-import com.man.mapper.TaskCategoriyMapper;
-import com.man.mapper.TaskTimesMapper;
-import com.man.mapper.TasksMapper;
-import com.man.mapper.PastimesMapper;
+import com.man.mapper.*;
 import com.man.service.CoreService.TUserService;
 import com.man.utils.*;
 import com.man.service.CoreService.TasksService;
@@ -50,10 +47,12 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
     private final TasksMapper tasksMapper;
     private final TaskCategoriyMapper taskCategoriyMapper;
     private final TaskTimesMapper taskTimesMapper;
+
+    private final OrdersMapper ordersMapper;
     private final RabbitTemplate rabbitTemplate;
 
     @Autowired
-    public TasksServiceImpl(TUserService tUserService, StringRedisTemplate stringRedisTemplate, CacheClient cacheClient, PastimesMapper pastimesMapper, TaskCategoriyMapper taskCategoriyMapper, TasksMapper tasksMapper, TaskCategoriyMapper taskCategoriyMapper1, TaskTimesMapper taskTimesMapper, RabbitTemplate rabbitTemplate) {
+    public TasksServiceImpl(TUserService tUserService, StringRedisTemplate stringRedisTemplate, CacheClient cacheClient, PastimesMapper pastimesMapper, TaskCategoriyMapper taskCategoriyMapper, TasksMapper tasksMapper, TaskCategoriyMapper taskCategoriyMapper1, TaskTimesMapper taskTimesMapper, OrdersMapper ordersMapper, RabbitTemplate rabbitTemplate) {
         this.tUserService = tUserService;
         this.stringRedisTemplate = stringRedisTemplate;
         this.cacheClient = cacheClient;
@@ -61,6 +60,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         this.tasksMapper = tasksMapper;
         this.taskCategoriyMapper = taskCategoriyMapper;
         this.taskTimesMapper = taskTimesMapper;
+        this.ordersMapper = ordersMapper;
         this.rabbitTemplate = rabbitTemplate;
     }
 
@@ -70,13 +70,11 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
     public HttpResult createTask(TaskForm taskForm) {
         var user = (UsernamePasswordAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
         Long userId = Long.parseLong((String) user.getPrincipal());
-        Long taskId = UUID.randomUUID().node();
         TUser tUser = tUserService.query().select("id","ach_url","nick_name").eq("login_name",userId).one();
         if(tUser == null){
             return HttpResult.fail("登录凭证错误，请重新登录");
         }
         var task = Task.builder()
-                .id(taskId)
                 .initiatorId(tUser.getId())
                 .name(taskForm.getName())
                 .description(taskForm.getDescription())
@@ -102,10 +100,10 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         }
         //先在redis中存储位置信息
         boolean isTrue = updateGEO(task);
-        //创建订单日期
+        //创建日期
         int timeFlag = taskTimesMapper.insert(TaskTimes.builder()
                         .createTime(Timestamp.valueOf(LocalDateTime.now()))
-                        .taskId(taskId)
+                        .taskId(task.getId())
                 .build());
         if(!isTrue && timeFlag < 0){
             return HttpResult.builder().code(ErrorCodeEnum.FAIL.code).msg("位置信息错误").build();
@@ -333,18 +331,6 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         return HttpResult.builder().msg("获取成功").code(ErrorCodeEnum.SUCCESS.code).data(data).build();
     }
 
-    //提交任务完成进度
-    @Override
-    @Transactional
-    public HttpResult submitTaskProgress(Long taskId, String progress) {
-        Task task = getTask(taskId);
-        if(task == null){
-            return HttpResult.builder().code(ErrorCodeEnum.FAIL.code).msg("不存在的id").build();
-        }
-        task.setProgress(progress);
-        return update(task);
-    }
-
 
     //确认任务完成但是未付款
     @Override
@@ -352,7 +338,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
     public HttpResult confirmTaskCompletion(Long taskId) {
         Task task = getTask(taskId);
         //创建订单
-        Orders orders = Orders.builder()
+        TOrder orders = TOrder.builder()
                 .orderData(Timestamp.valueOf(LocalDateTime.now()))
                 .status(OrderEnum.OUT.status)
                 .productId(taskId)
@@ -375,7 +361,23 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         //任务完成后向承接方发送消息
         Long initiatorId = task.getInitiatorId();
         rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY, initiatorId + ":" + "您承接的任务"+task.getName()+"已经完成");
-        return update(task);
+        HttpResult httpResult = update(task);
+        if(httpResult.getCode().equals(ErrorCodeEnum.FAIL.code)){
+            return httpResult;
+        }
+        //创建订单
+        TOrder orders = TOrder.builder()
+                .id(IdUtils.snowflake.nextId())
+                .unitPrice(task.getPrice())
+                .status(OrderEnum.OUT.status)
+                .productId(task.getInitiatorId())
+                .customerId(task.getId())
+                .totalAmount(task.getPrice())
+                .orderData(new Timestamp(System.currentTimeMillis()))
+                .build();
+        ordersMapper.insert(orders);
+        //返回订单数据
+        return HttpResult.success(orders);
     }
     public Task getTask(Serializable taskId){
         return cacheClient.queryWithPassThrough(RedisConstants.CACHE_TASK_KEY,taskId,Task.class, id->getById(taskId), RedisConstants.CACHE_TASK_TTL,TimeUnit.MINUTES);

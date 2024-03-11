@@ -21,12 +21,15 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.AbstractTransactionManagementConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 //TODO:登录接口转移到 Security里
 /**
@@ -123,12 +126,9 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
         if(oldUser != null){
             return HttpResult.fail("该手机号已经注册过");
         }
-        //获取雪花id
-        var id = IdUtils.snowflake.nextId();
         tUser.setNickName(IdUtils.generate());
         String password = new BCryptPasswordEncoder().encode(tUser.getPassword());
         SysUser sysUser = SysUser.builder()
-                .id(id)
                 .username(tUser.getLoginName())
                 .password(password)
                 .enabled(1)
@@ -140,7 +140,7 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
         sysUserMapper.insert(sysUser);
         sysUserRuleMapper.insert(SysUserRule.builder().userId(sysUser.getId()).menuId(1).build());
         //注册用户
-        tUser.setSysUser(id);
+        tUser.setSysUser(sysUser.getId());
         log.error(tUser.toString());
         boolean flag = save(tUser);
         if(!flag){
@@ -152,7 +152,6 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
                 .createTime(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
         userInfoMapper.insert(userInfo);
-
         return HttpResult.success("注册成功");
     }
     @Override
@@ -173,7 +172,7 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
     @Override
     public HttpResult getMe(Boolean ifFrom) {
         String name = AuthenticationUtils.getName();
-        TUser tUser = query().select("id","nick_name","password").eq("login_name",name).one();
+        TUser tUser = query().select("id","nick_name","password","ach_url").eq("login_name",name).one();
         if(tUser == null){
             return HttpResult.fail("登录凭证错误，请尝试重新登录");
         }
@@ -183,7 +182,14 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
             wrapper.eq("user_id",tUser.getId());
             userInfo = userInfoMapper.selectOne(wrapper);
             if(userInfo == null){
-                return HttpResult.fail("未知错误，请尝试重新登录或联系客服");
+                //创建默认userInfo
+                TUserInfo tUserInfo = TUserInfo.builder()
+                        .workAddress("空")
+                        .userId(AuthenticationUtils.getId())
+                        .workType("空")
+                        .createTime(new Timestamp(System.currentTimeMillis()))
+                        .build();
+                return HttpResult.success(tUserInfo);
             }
         }
         UserFrom userFrom = UserFrom.builder()
@@ -284,7 +290,7 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
         TUser tUser = new TUser();
         tUser.setAchUrl(url);
         tUser.setId(AuthenticationUtils.getId());
-        boolean flag = update().update(tUser);
+        boolean flag = update().eq("id", AuthenticationUtils.getId()).update(tUser);
         if(!flag){
             return HttpResult.fail("上传错误");
         }

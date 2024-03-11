@@ -30,7 +30,7 @@ public class TaskMessageServiceImpl extends ServiceImpl<TaskMessageMapper, TaskM
     private final StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    private TaskMessageServiceImpl(UserMapper userMapper, StringRedisTemplate stringRedisTemplate) {
+    public TaskMessageServiceImpl(UserMapper userMapper, StringRedisTemplate stringRedisTemplate) {
         this.userMapper = userMapper;
         this.stringRedisTemplate = stringRedisTemplate;
     }

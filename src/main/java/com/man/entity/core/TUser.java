@@ -16,7 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "用户对象")
 public class TUser {
 
-    @TableId(value ="id", type = IdType.AUTO)
+    @TableId(value = "id",type = IdType.AUTO)
     @Schema(description = "用户ID", example = "1")
     private Long id;
 

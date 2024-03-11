@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -19,9 +20,9 @@ import java.sql.Timestamp;
 @Schema(name = "Task", description = "任务对象")
 public class Task {
     @NotNull(message = "任务ID不能为空")
+    @TableId(value="id", type = IdType.AUTO)
     @Schema(description = "任务ID", example = "1")
     private Long id;
-
     @Schema(description = "图片URL")
     private String imageUrl;
 
@@ -67,9 +68,12 @@ public class Task {
     @Schema(description = "任务进度")
     private String progress;
 
+    @Schema(description = "城市")
+    private String city;
+
     @NotNull(message = "缺少任务价格")
     @Schema(description = "任务价格", example = "1000")
-    private Long price;
+    private Double price;
 
     @Schema(description = "用户ID")
     @TableField(exist = false)

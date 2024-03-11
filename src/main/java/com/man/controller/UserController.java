@@ -156,7 +156,7 @@ public class UserController {
         if(addFlag.getCode().equals(1)){
             return HttpResult.fail(addFlag.getMsg());
         }
-        communicationsService.sendChatMessage("添加好友啦，快来聊天吧！",otherUserId);
+        communicationsService.sendChatMessage("添加好友啦，快来聊天吧！",otherUserId,AuthenticationUtils.getId());
         return HttpResult.success("添加成功");
     }
 
@@ -167,7 +167,7 @@ public class UserController {
         if(deFlag.getCode().equals(1)){
             return HttpResult.fail("删除失败");
         }
-        communicationsService.sendChatMessage("对方已经不是您的好友",otherUserId);
+        communicationsService.sendChatMessage("对方已经不是您的好友",otherUserId,AuthenticationUtils.getId());
         return HttpResult.success("删除成功");
     }
 
@@ -183,6 +183,13 @@ public class UserController {
     public HttpResult getAcceptedTasks(@RequestParam Integer pageNum) {
         return tasksService.getOtherTasksBySortKey(null,TaskEnum.UNFINISH.state,pageNum);
     }
+
+    // 用户获取已接受任务
+    @GetMapping("/getPublishedTasks")
+    public HttpResult getInitTasks(@RequestParam Integer pageNum) {
+        return tasksService.getOtherTasksBySortKey(null,TaskEnum.PUBLISH.state,pageNum);
+    }
+
     //修改头像
     @PostMapping("/avatar")
     public HttpResult setAvatar(@RequestParam("url") String url){

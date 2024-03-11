@@ -23,14 +23,6 @@ public class TaskListener {
     }
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(name = RabbitMessage.ORDER_UPDATE_QUEUE),
-            exchange = @Exchange(name = RabbitMessage.EXCHANGE_NAME),
-            key = {RabbitMessage.ORDER_UPDATE_ROUTING_KEY})
-    )
-    public void listenUpdateQueue(String taskId){
-        tasksService.successTask(taskId);
-    }
-    @RabbitListener(bindings = @QueueBinding(
             value = @Queue(name = RabbitMessage.SYSTEM_INFO_QUEUE),
             exchange = @Exchange(name = RabbitMessage.EXCHANGE_NAME),
             key = {RabbitMessage.SYSTEM_INFO_ROUTING_KEY})
@@ -38,6 +30,4 @@ public class TaskListener {
     public void listenMessageQueue(String userId,String message){
         sysMessageService.sendMessage(userId,message);
     }
-
-
 }

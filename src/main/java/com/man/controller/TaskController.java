@@ -3,6 +3,7 @@ import com.man.dto.ErrorCodeEnum;
 import com.man.dto.HttpResult;
 import com.man.dto.TaskForm;
 import com.man.entity.core.Task;
+import com.man.entity.core.TaskImages;
 import com.man.entity.core.TaskMessage;
 import com.man.service.CoreService.*;
 
@@ -11,6 +12,10 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Timestamp;
+import java.util.List;
+
 @ResponseBody
 @RestController
 @Log4j2
@@ -22,15 +27,17 @@ public class TaskController {
     private final TaskCategoriyService taskCategoriyService;
     private final TaskTimesService tasktimesService;
     private final UserLikeMessageService userLikeMessageService;
+    private final TaskImagesService taskImagesService;
 
     @Autowired
-    public TaskController(TasksService tasksService, TaskMessageService taskMessageService, OrdersService ordersService, TaskCategoriyService taskCategoriyService, TaskTimesService tasktimesService, UserLikeMessageService userLikeMessageService) {
+    public TaskController(TasksService tasksService, TaskMessageService taskMessageService, OrdersService ordersService, TaskCategoriyService taskCategoriyService, TaskTimesService tasktimesService, UserLikeMessageService userLikeMessageService, TaskImagesService taskImagesService) {
         this.tasksService = tasksService;
         this.taskMessageService = taskMessageService;
         this.ordersService = ordersService;
         this.taskCategoriyService = taskCategoriyService;
         this.tasktimesService = tasktimesService;
         this.userLikeMessageService = userLikeMessageService;
+        this.taskImagesService = taskImagesService;
     }
 
     //根据id获取任务信息
@@ -83,6 +90,7 @@ public class TaskController {
     @PostMapping("/{taskId}/conversation")
     public HttpResult addConversationToTask(@PathVariable("taskId") Long taskId, @Validated @RequestBody TaskMessage taskMessage) {
         //根据 taskId 将 conversation 添加到对应的任务下
+        taskMessage.setCreateTime(new Timestamp(System.currentTimeMillis()));
         boolean isTrue = taskMessageService.save(taskMessage);
         if (!isTrue) {
             return HttpResult.builder().code(ErrorCodeEnum.FAIL.code).msg("评论失败").build();
@@ -147,23 +155,39 @@ public class TaskController {
         return tasksService.acceptTask(taskId);
     }
 
+    //任务完成
+    @PostMapping("/ok")
+    public HttpResult okTask(@RequestParam(name = "taskId") Long taskId){
+        return tasksService.successTask(taskId.toString());
+    }
+
     @PostMapping("/progress")
-    public HttpResult submitTaskProgress(@RequestParam(name = "taskId") Long taskId,
-                                         @RequestParam(name = "progress") String progress) {
-        return tasksService.submitTaskProgress(taskId, progress);
+    public HttpResult submitTaskProgress(@RequestBody List<String> imagesList,@RequestParam(name="taskId") Long taskId) {
+        return taskImagesService.submitTaskProgress(imagesList,taskId);
+    }
+
+    @GetMapping("/tasks/progress")
+    public HttpResult getTaskProgresses(@RequestParam(name = "taskId") Long taskId){
+        return taskImagesService.getTaskProgresses(taskId);
     }
 
     @PostMapping("/tasks/confirm")
     public HttpResult confirmTaskCompletion(@RequestParam(name = "taskId") Long taskId) {
         return tasksService.confirmTaskCompletion(taskId);
     }
+    //获取订单
+    @GetMapping("/pay")
+    public HttpResult getOrders(@RequestParam String orderId){
+        return ordersService.getOrders(orderId);
+    }
+
     //支付
     @PostMapping("/pay")
     public HttpResult handlePayment(@RequestBody String orderId) {
         return ordersService.processPayment(orderId);
     }
 
-    //取消支付
+    //退款
     @PostMapping("/unPay")
     public HttpResult unPayment(@RequestParam String orderId) {
         return ordersService.unPayment(orderId);

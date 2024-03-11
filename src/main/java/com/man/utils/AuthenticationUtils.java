@@ -37,7 +37,7 @@ public class AuthenticationUtils {
     }
 
     public static Long getId(){
-        return Long.parseLong( SecurityContextHolder.getContext().getAuthentication().getCredentials().toString());
+        return Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getCredentials().toString());
     }
 
     public static String getName(){

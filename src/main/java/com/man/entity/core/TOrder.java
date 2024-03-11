@@ -1,5 +1,7 @@
 package com.man.entity.core;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +12,8 @@ import java.sql.Timestamp;
 @Data
 @Builder
 @Schema(name = "Orders", description = "订单对象")
-public class Orders {
-
+public class TOrder {
+  @TableId(value="id", type = IdType.ASSIGN_ID)
   @Schema(description = "订单ID")
   private Long id;
 
@@ -28,7 +30,7 @@ public class Orders {
   private Double unitPrice;
 
   @Schema(description = "总金额")
-  private Long totalAmount;
+  private Double totalAmount;
 
   @Schema(description = "订单状态")
   private String status;

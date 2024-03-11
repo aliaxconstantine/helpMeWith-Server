@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 */
 public interface CommunicationsService extends IService<Communication> {
 
-    HttpResult sendChatMessage(String message,String otherId);
+    @Transactional
+    HttpResult sendChatMessage(String message, String otherUserId, Long meId);
 
     HttpResult getChatMessagesByUserId(String userId);
 

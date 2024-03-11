@@ -1,7 +1,7 @@
 package com.man.config.appConfig;
 
-import com.man.config.fliter.CORSInterceptor;
-import com.man.config.fliter.RequestLogFilter;
+import com.man.Logger.CORSInterceptor;
+import com.man.Logger.RequestLogFilter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.filter.OrderedHiddenHttpMethodFilter;

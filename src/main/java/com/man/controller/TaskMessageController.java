@@ -39,7 +39,7 @@ public class TaskMessageController {
     //获取任务下点赞数
     //给任务下的对话点赞
     @ResponseBody
-    @GetMapping("/star}")
+    @GetMapping("/star")
     public HttpResult getLikeOnTaskMessage(@RequestParam String messageId){
         return taskMessageService.getLike(messageId);
     }

@@ -32,14 +32,14 @@ public class CommunicationsServiceImpl extends ServiceImpl<CommunicationsMapper,
 
     @Transactional
     @Override
-    public HttpResult sendChatMessage(String message, String otherUserId) {
+    public HttpResult sendChatMessage(String message, String otherUserId,Long meId ) {
         //给好友发消息
         long id = Long.parseLong(otherUserId);
         Communication taskMessage = Communication.builder()
-                .senderUserId(AuthenticationUtils.getId())
+                .senderUserId(meId)
                 .receiverUserId(id)
                 .content(message)
-                .data(new Timestamp(System.currentTimeMillis()))
+                .date(new Timestamp(System.currentTimeMillis()))
                 .build();
         boolean ifTrue = save(taskMessage);
         if(!ifTrue){

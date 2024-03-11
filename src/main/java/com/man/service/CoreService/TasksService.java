@@ -32,8 +32,6 @@ public interface TasksService extends IService<Task> {
 
     HttpResult getTasksByTime(Integer pageNum);
 
-    @Transactional
-    HttpResult submitTaskProgress(Long taskId, String progress);
 
     @Transactional
     HttpResult confirmTaskCompletion(Long taskId);

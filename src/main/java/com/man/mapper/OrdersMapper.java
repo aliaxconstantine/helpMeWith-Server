@@ -1,7 +1,7 @@
 package com.man.mapper;
 
-import com.man.entity.core.Orders;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.man.entity.core.TOrder;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 * @Entity com.entity.core.Orders
 */
 @Mapper
-public interface OrdersMapper extends BaseMapper<Orders> {
+public interface OrdersMapper extends BaseMapper<TOrder> {
 
 }
 

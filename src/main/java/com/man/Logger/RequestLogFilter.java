@@ -1,6 +1,6 @@
-package com.man.config.fliter;
+package com.man.Logger;
 
-import com.man.config.streamFilter.RequestWrapper;
+import com.man.utils.RequestWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
@@ -8,9 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Component
@@ -30,6 +28,14 @@ public class RequestLogFilter implements HandlerInterceptor {
         String method = request.getMethod();
         String url = request.getRequestURL().toString();
         String queryString = request.getQueryString();
+        //如果是post或者queryString为空
+        if(method.equals("POST") && queryString == null){
+            queryString = request.getInputStream().toString();
+        }
+        //如果不是
+        if(!method.equals("POST") && queryString == null){
+            queryString = request.getPathInfo();
+        }
         String headers = getRequestHeaders(request);
         RequestWrapper cachingRequestWrapper = new RequestWrapper(request);
 

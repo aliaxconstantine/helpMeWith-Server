@@ -1,5 +1,7 @@
 package com.man.entity.core;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +14,7 @@ import java.sql.Timestamp;
 public class TaskTimes {
 
   @NotNull(message = "ID不能为空")
+  @TableId(value="id", type = IdType.AUTO)
   @Schema(description = "ID", example = "1")
   private Long id;
 

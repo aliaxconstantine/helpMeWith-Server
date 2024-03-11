@@ -5,9 +5,14 @@ spring:
       port: 6379
       password: kstdalxy123
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://39.100.140.88:3306/manager
     username: manager
     password: NHNnC6tFeJpF7xGA
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 30000
   rabbitmq:
     username: aliax
     password: kstdalxy123
