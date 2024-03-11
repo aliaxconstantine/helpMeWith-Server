@@ -1,6 +1,7 @@
 package com.man.service.impl.core;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -284,7 +285,11 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
             update(task);
         }
         //订单承接成功后向发起方发送消息
-        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY, userId + ":" + "您的订单已被id为"+userId+"的用户承接");
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
+                JSONUtil.toJsonStr(
+                        SystemMessageForm.builder().message( "您的订单已被id为"+userId+"的用户承接")
+                                .userId(userId.toString())
+                ));
         return HttpResult.builder().code(ErrorCodeEnum.SUCCESS.code).msg("承接任务成功").build();
     }
 
@@ -360,7 +365,9 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         task.setStatus(StateEnum.PUBLISH_TRUE.state);
         //任务完成后向承接方发送消息
         Long initiatorId = task.getInitiatorId();
-        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY, initiatorId + ":" + "您承接的任务"+task.getName()+"已经完成");
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
+                JSONUtil.toJsonStr(SystemMessageForm.builder()
+                        .message( "您承接的任务"+task.getName()+"已经被确认完成").userId(initiatorId.toString())));
         HttpResult httpResult = update(task);
         if(httpResult.getCode().equals(ErrorCodeEnum.FAIL.code)){
             return httpResult;

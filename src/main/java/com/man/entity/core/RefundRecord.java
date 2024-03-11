@@ -1,4 +1,6 @@
 package com.man.entity.core;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Builder;
 import lombok.Data;
 import java.sql.Timestamp;
@@ -10,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(name = "RefundRecord", description = "退款记录对象")
 public class RefundRecord {
 
+  @TableId(value = "id",type = IdType.AUTO)
   @Schema(description = "退款记录ID")
   private long id;
 
@@ -27,5 +30,4 @@ public class RefundRecord {
 
   @Schema(description = "更新时间")
   private Timestamp updatedAt;
-
 }

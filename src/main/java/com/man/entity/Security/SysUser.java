@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class SysUser {
 
 
-  @TableId(value = "id", type = IdType.AUTO)
+  @TableId(value = "id", type = IdType.ASSIGN_ID)
   @Schema(description = "用户ID")
   private Long id;
 

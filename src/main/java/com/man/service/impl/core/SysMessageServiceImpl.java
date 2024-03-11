@@ -2,16 +2,22 @@ package com.man.service.impl.core;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.man.dto.HttpResult;
 import com.man.entity.core.SysMessage;
 import com.man.entity.core.TUser;
 import com.man.mapper.TUserMapper;
 import com.man.service.CoreService.SysMessageService;
 import com.man.mapper.SysMessageMapper;
+import com.man.utils.AuthenticationUtils;
 import com.man.utils.RedisConstants;
+import com.man.utils.SystemConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
 * @author 艾莉希雅
@@ -44,6 +50,13 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
             stringRedisTemplate.opsForValue().set(key,message);
             save(sysMessage);
         }
+    }
+
+    @Override
+    public HttpResult getAllMessage(Long pageNum) {
+        //获取所有信息
+        List<SysMessage> list = query().eq("user_id", AuthenticationUtils.getId()).page(new Page<>(pageNum, SystemConstants.MAX_PAGE_SIZE_MESSAGE)).getRecords();
+        return HttpResult.success(list);
     }
 }
 

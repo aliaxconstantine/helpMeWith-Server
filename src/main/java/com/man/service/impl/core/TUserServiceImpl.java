@@ -126,9 +126,15 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
         if(oldUser != null){
             return HttpResult.fail("该手机号已经注册过");
         }
+        //用户名查询是否重复
+        TUser nickOld = query().eq("nick_name",tUser.getNickName()).one();
+        if(nickOld != null){
+            return HttpResult.fail("该用户名已被使用");
+        }
         tUser.setNickName(IdUtils.generate());
         String password = new BCryptPasswordEncoder().encode(tUser.getPassword());
         SysUser sysUser = SysUser.builder()
+                .id(IdUtils.snowflake.nextId())
                 .username(tUser.getLoginName())
                 .password(password)
                 .enabled(1)
@@ -183,14 +189,14 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
             userInfo = userInfoMapper.selectOne(wrapper);
             if(userInfo == null){
                 //创建默认userInfo
-                TUserInfo tUserInfo = TUserInfo.builder()
+                userInfo = TUserInfo.builder()
                         .workAddress("空")
                         .userId(AuthenticationUtils.getId())
                         .workType("空")
                         .createTime(new Timestamp(System.currentTimeMillis()))
                         .build();
-                return HttpResult.success(tUserInfo);
             }
+            return HttpResult.success(userInfo);
         }
         UserFrom userFrom = UserFrom.builder()
                 .userId(tUser.getId())
@@ -268,6 +274,7 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         // 修改账户密码
         TUser user = new TUser();
+        user.setId(AuthenticationUtils.getId());
         user.setPassword(password);
         boolean flag = update().update(user);
         // 修改系统账户密码

@@ -3,7 +3,6 @@ import com.man.dto.ErrorCodeEnum;
 import com.man.dto.HttpResult;
 import com.man.dto.TaskForm;
 import com.man.entity.core.Task;
-import com.man.entity.core.TaskImages;
 import com.man.entity.core.TaskMessage;
 import com.man.service.CoreService.*;
 
@@ -181,10 +180,20 @@ public class TaskController {
         return ordersService.getOrders(orderId);
     }
 
+    //获取该任务是否有订单
+    @GetMapping("/order")
+    public HttpResult getTaskOrders(@RequestParam String taskID){return ordersService.getOrdersByTask(taskID);}
+
     //支付
     @PostMapping("/pay")
-    public HttpResult handlePayment(@RequestBody String orderId) {
+    public HttpResult handlePayment(@RequestParam String orderId) {
         return ordersService.processPayment(orderId);
+    }
+
+    //获取退款单
+    @GetMapping("/confirmRefund")
+    public HttpResult getUnPayment(@RequestParam String orderId) {
+        return ordersService.getUnPayment(orderId);
     }
 
     //退款
@@ -193,6 +202,7 @@ public class TaskController {
         return ordersService.unPayment(orderId);
     }
 
+    //确认退款
     @PostMapping("/confirmRefund")
     public HttpResult confirmRefund(@RequestParam String refundId) {
         return ordersService.confirmRefund(refundId);

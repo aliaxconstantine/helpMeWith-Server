@@ -102,7 +102,7 @@ public class UserController {
 
     //修改账户密码
     @PostMapping("/me/password")
-    public HttpResult rePassword(@RequestParam(name="pwd") String password){
+    public HttpResult rePassword(@RequestParam(name="newPassword") String password , @RequestParam(name="oldPassword") String old){
         return userService.rePassword(password);
     }
 
@@ -113,7 +113,7 @@ public class UserController {
         if(!flag){
             return HttpResult.fail("服务器错误");
         }
-        return HttpResult.success("修改成功");
+        return HttpResult.success(true);
     }
 
 

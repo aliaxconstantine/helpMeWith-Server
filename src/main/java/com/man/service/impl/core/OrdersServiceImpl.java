@@ -1,9 +1,11 @@
 package com.man.service.impl.core;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.man.dto.*;
 import com.man.entity.core.TOrder;
 import com.man.entity.core.RefundRecord;
+import com.man.entity.core.Task;
 import com.man.mapper.OrdersMapper;
 import com.man.service.CoreService.OrdersService;
 import com.man.service.CoreService.RefundRecordService;
@@ -24,6 +26,8 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> impleme
 
     private final RabbitTemplate rabbitTemplate;
     private final RefundRecordService refundRecordService;
+
+
     @Autowired
     public OrdersServiceImpl(RabbitTemplate rabbitTemplate, RefundRecordService refundRecordService){
         this.rabbitTemplate = rabbitTemplate;
@@ -35,7 +39,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> impleme
         // 根据订单号查询订单信息
         TOrder order = getById(orderId);
         if (order == null) {
-            return HttpResult.builder().msg("订单不存在").code(ErrorCodeEnum.FAIL.code).build();
+            return HttpResult.builder().data(false).msg("订单不存在").code(ErrorCodeEnum.FAIL.code).build();
         }
         // 更新订单状态为已支付
         order.setStatus(OrderEnum.PAID.status);
@@ -44,8 +48,19 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> impleme
             throw new RuntimeException("服务器异常");
         }
         // 使用消息队列处理 其他业务逻辑、发送通知等
-        //修改任务状态
-        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME,RabbitMessage.ORDER_UPDATE_ROUTING_KEY,order.getProductId());
+        Task task = Task.builder().id(order.getProductId()).status(TaskEnum.PAYFINISH.state).build();
+        //修改任务状态为已经支付
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME,RabbitMessage.ORDER_UPDATE_ROUTING_KEY,
+                JSONUtil.toJsonStr(task));
+        //向客户发送消息
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
+              JSONUtil.toJsonStr(
+                      SystemMessageForm.builder().message("您承接的任务"+task.getName()+"任务发起方已付款").userId(task.getAssigneeId().toString()).build()
+              ));
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
+                JSONUtil.toJsonStr(
+                        SystemMessageForm.builder().message("您的任务"+task.getName()+"已付款").userId(task.getInitiatorId().toString())
+                ));
         // 返回支付成功的响应
         return HttpResult.builder().data(true).msg("支付成功").code(ErrorCodeEnum.SUCCESS.code).build();
     }
@@ -72,7 +87,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> impleme
                 .status(RefundStatus.REFUNDING)
                 .amount(order.getUnitPrice())
                 .build();
-        refundRecordService.update().update(refundRecord);
+        refundRecordService.save(refundRecord);
         return HttpResult.success(refundRecord);
     }
 
@@ -88,9 +103,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> impleme
         if (!Objects.equals(refundRecord.getStatus(), RefundStatus.REFUNDING)) {
             return HttpResult.fail("并未发起退款");
         }
-
         // 执行退款操作，例如调用支付系统的退款接口
-
         // 更新订单状态为“已退款”
         TOrder order = getById(refundRecord.getOrderId());
         order.setStatus(OrderEnum.REFUNDED.status);
@@ -106,7 +119,20 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> impleme
             throw new RuntimeException("服务器异常");
         }
         // 执行一些后续操作，例如向用户发送退款成功通知等
-
+        //将任务状态改为已退款
+        Task task = Task.builder().id(order.getCustomerId()).status(TaskEnum.UNPAYFINISH.state).build();
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME,RabbitMessage.ORDER_UPDATE_ROUTING_KEY, JSONUtil.toJsonStr(task));
+        //向用户发送退款成功通知
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
+                JSONUtil.toJsonStr(
+                SystemMessageForm.builder()
+                        .message("任务"+task.getName()+"任务承接者已退款")
+                        .userId(task.getInitiatorId().toString())));
+        rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
+                JSONUtil.toJsonStr(
+                SystemMessageForm.builder()
+                        .message("您的任务"+task.getName()+"退款成功")
+                        .userId(task.getAssigneeId().toString())));
         return HttpResult.success(refundRecord);
     }
 
@@ -114,8 +140,22 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, TOrder> impleme
     public HttpResult getOrders(String orderId) {
         TOrder tOrder = getById(orderId);
         if(tOrder == null){
-           return HttpResult.fail("错误的id");
+           return HttpResult.fail("订单id错误");
         }
+        return HttpResult.success(tOrder);
+    }
+
+    @Override
+    public HttpResult getOrdersByTask(String taskID) {
+        //根据id获取到订单
+        TOrder tOrder = query().eq("customer_id", taskID).one();
+        return HttpResult.success(tOrder);
+    }
+
+    @Override
+    public HttpResult getUnPayment(String orderId) {
+        //获取有没有退款单
+        RefundRecord tOrder = refundRecordService.query().eq("order_id", orderId).one();
         return HttpResult.success(tOrder);
     }
 }

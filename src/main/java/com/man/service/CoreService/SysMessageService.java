@@ -1,5 +1,6 @@
 package com.man.service.CoreService;
 
+import com.man.dto.HttpResult;
 import com.man.entity.core.SysMessage;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -11,4 +12,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface SysMessageService extends IService<SysMessage> {
 
     void sendMessage(String userId, String message);
+
+    HttpResult getAllMessage(Long pageNum);
 }

@@ -33,3 +33,4 @@ build/
 .vscode/
 ###密码等####
 !**/src/main/resources/private.yml
+

@@ -19,4 +19,8 @@ public interface OrdersService extends IService<TOrder> {
     HttpResult confirmRefund(String refundId);
 
     HttpResult getOrders(String orderId);
+
+    HttpResult getOrdersByTask(String taskID);
+
+    HttpResult getUnPayment(String orderId);
 }

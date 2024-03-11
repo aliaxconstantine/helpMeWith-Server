@@ -2,18 +2,19 @@ package com.man.entity.core;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
 import java.sql.Timestamp;
-
-
 @Data
 @Builder
 @Schema(name = "Orders", description = "订单对象")
 public class TOrder {
   @TableId(value="id", type = IdType.ASSIGN_ID)
+  @JsonSerialize(using = ToStringSerializer.class)
   @Schema(description = "订单ID")
   private Long id;
 

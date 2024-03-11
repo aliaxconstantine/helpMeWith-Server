@@ -23,6 +23,8 @@ public class RabbitMqConfig {
         return new Queue(TASK_QUEUE_NAME);
     }
 
+
+
     @Bean
     public Binding taskBinding() {
         return BindingBuilder.bind(taskQueue()).to(taskExchange()).with(TASK_ROUTING_KEY).noargs();
@@ -36,5 +38,6 @@ public class RabbitMqConfig {
     public Binding chatMessageBinding() {
         return BindingBuilder.bind(chatMessageQueue()).to(taskExchange()).with(ROUTING_KEY).noargs();
     }
+
 
 }
