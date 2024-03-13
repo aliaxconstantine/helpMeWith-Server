@@ -10,7 +10,7 @@ spring:
           max-age: 7200
       static-locations:
         - "classpath:/static"
-        - "file:D:/code/picture"
+        - "file:/www/wwwroot/maskmanger/static/file"
   profiles:
     active: dev
   mvc:

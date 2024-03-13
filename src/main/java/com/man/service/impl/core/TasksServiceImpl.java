@@ -81,7 +81,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
                 .description(taskForm.getDescription())
                 .x(taskForm.getX())
                 .y(taskForm.getY())
-                .type("1")
+                .type(TaskEnum.FALSE.state.toString())
                 .imageUrl(String.join(",",taskForm.getImageUrl()))
                 .userId(tUser.getId())
                 .userIcon(tUser.getAchUrl())
@@ -167,9 +167,11 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
             var user = (sortKey.equals(TaskEnum.TRUE.state) || sortKey.equals(TaskEnum.FINISH.state) || sortKey.equals(TaskEnum.UNFINISH.state))
                     ? tUserService.getById(task.getInitiatorId())
                     : tUserService.getById(task.getAssigneeId());
-            task.setUserName(user.getNickName());
-            task.setUserId(user.getId());
-            task.setUserIcon(user.getAchUrl());
+            if(user != null){
+                task.setUserName(user.getNickName());
+                task.setUserId(user.getId());
+                task.setUserIcon(user.getAchUrl());
+            }
         });
     }
 
