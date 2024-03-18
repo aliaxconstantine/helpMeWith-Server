@@ -8,6 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
 
+/**
+ * @author 艾莉希雅
+ */
 public class AuthenticationUtils {
     public static void checkVerifyCode(String redisVerifyCode, String code) {
         if (ObjectUtils.isEmpty(code)){

@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * 用于在认证成功后处理生成JWT Token等相关逻辑的处理器。
+ * @author 艾莉希雅
  */
 @Component
 @Log4j2

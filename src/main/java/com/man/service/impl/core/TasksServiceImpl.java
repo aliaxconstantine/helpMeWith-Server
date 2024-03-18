@@ -34,9 +34,9 @@ import java.util.function.Supplier;
 
 /**
 * @author 艾莉希雅
-* @description 针对表【tasks】的数据库操作Service实现
-* @createDate 2023-08-20 10:37:17
-*/
+* &#064;description  针对表【tasks】的数据库操作Service实现
+* &#064;createDate  2023-08-20 10:37:17
+ */
 //TODO:每一个获取订单的高key需要加缓存
 @Service
 public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements TasksService{
@@ -81,7 +81,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
                 .description(taskForm.getDescription())
                 .x(taskForm.getX())
                 .y(taskForm.getY())
-                .type(TaskEnum.FALSE.state.toString())
+                .status(TaskEnum.FALSE.state)
                 .imageUrl(String.join(",",taskForm.getImageUrl()))
                 .userId(tUser.getId())
                 .userIcon(tUser.getAchUrl())
@@ -92,8 +92,6 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         //数据校验
         //设置创建日期
         task.setDate(new Timestamp(System.currentTimeMillis()));
-        //设置状态
-        task.setStatus(StateEnum.UN_PUBLISH.state);
         //在数据库中存储
         boolean flag = save(task);
         if(!flag){
@@ -125,12 +123,12 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         Long finalOtherUserId = otherUserId;
         Map<Integer, Supplier<List<Task>>> queryMap = Map.of(
                 TaskEnum.TRUE.state, () -> queryByAssigneeAndStatus(finalOtherUserId, null, page),
-                TaskEnum.FINISH.state, () -> queryByAssigneeAndStatus(finalOtherUserId, StateEnum.PUBLISH_TRUE.state, page),
-                TaskEnum.UNFINISH.state, () -> queryByAssigneeAndStatus(finalOtherUserId, StateEnum.PUBLISH_FALSE.state, page),
+                TaskEnum.FINISH.state, () -> queryByAssigneeAndStatus(finalOtherUserId, TaskEnum.FINISH.state, page),
+                TaskEnum.UNFINISH.state, () -> queryByAssigneeAndStatus(finalOtherUserId, TaskEnum.UNFINISH.state, page),
                 TaskEnum.PUBLISH.state, () -> queryByInitiator(finalOtherUserId, page),
-                TaskEnum.FALSE.state, () -> queryByInitiatorAndStatus(finalOtherUserId, StateEnum.UN_PUBLISH.state, page),
-                TaskEnum.PFINISH.state, () -> queryByInitiatorAndStatus(finalOtherUserId, StateEnum.PUBLISH_FALSE.state, page),
-                TaskEnum.PUNFILSH.state, () -> queryByInitiatorAndStatus(finalOtherUserId, StateEnum.PUBLISH_TRUE.state, page)
+                TaskEnum.FALSE.state, () -> queryByInitiatorAndStatus(finalOtherUserId, TaskEnum.FALSE.state, page),
+                TaskEnum.PFINISH.state, () -> queryByInitiatorAndStatus(finalOtherUserId,TaskEnum.PFINISH.state, page),
+                TaskEnum.PUNFILSH.state, () -> queryByInitiatorAndStatus(finalOtherUserId, TaskEnum.PUNFILSH.state, page)
         );
         if (!queryMap.containsKey(sortKey)) {
             return HttpResult.fail("错误：请检查传入key");
@@ -191,8 +189,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
     @Override
     public HttpResult getTypeTasks(String type, Integer pageNum) {
         //进行缓存
-
-        if(type.equals("all")){
+        if("all".equals(type)){
             var page = new Page<Task>(pageNum, SystemConstants.MAX_PAGE_SIZE);
             List<Task> tasks = query().eq("status",2).orderByAsc("date").page(page).getRecords();
             setUserInfo(tasks);
@@ -266,7 +263,9 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
     public boolean updateGEO(Task task){
         String key = RedisConstants.TASK_GEO_KEY + task.getStatus();
         Long number = stringRedisTemplate.opsForGeo().add(key,new Point(task.getX(),task.getY()),task.getId().toString());
-        if(number == null) return false;
+        if(number == null) {
+            return false;
+        }
         return number == 1;
     }
     @Transactional
@@ -277,11 +276,11 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         //判断任务是否被承接
         synchronized (userId.toString().lines()) {
             Task task = getById(taskId);
-            if (!task.getStatus().equals(StateEnum.UN_PUBLISH.state)) {
+            if (!task.getStatus().equals(TaskEnum.FALSE.state)) {
                 return HttpResult.builder().data(false).code(ErrorCodeEnum.FAIL.code).msg("该任务已被承接").build();
             }
             //修改任务状态
-            task.setStatus(StateEnum.PUBLISH_FALSE.state);
+            task.setStatus(TaskEnum.UNFINISH.state);
             //添加用户任务清单
             task.setAssigneeId(userId);
             update(task);
@@ -292,7 +291,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
                         SystemMessageForm.builder().message( "您的订单已被id为"+userId+"的用户承接")
                                 .userId(userId.toString())
                 ));
-        return HttpResult.builder().code(ErrorCodeEnum.SUCCESS.code).msg("承接任务成功").build();
+        return HttpResult.builder().code(ErrorCodeEnum.SUCCESS.code).data(true).build();
     }
 
     //给任务添加评论数
@@ -320,7 +319,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
     @Override
     public HttpResult getTasksByTime(Integer pageNum) {
         //先进行缓存
-        var data = query().eq("status",2)
+        var data = query().eq("status",TaskEnum.FALSE.state)
                 .page(new Page<>(pageNum, SystemConstants.DEFAULT_PAGE_SIZE)).getRecords();
         if(data == null){
             return HttpResult.builder().code(ErrorCodeEnum.FAIL.code).msg("获取失败").data(null).build();
@@ -364,7 +363,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
             return HttpResult.builder().code(ErrorCodeEnum.FAIL.code).msg("不存在的id").build();
         }
         //修改任务状态
-        task.setStatus(StateEnum.PUBLISH_TRUE.state);
+        task.setStatus(TaskEnum.UNFINISH.state);
         //任务完成后向承接方发送消息
         Long initiatorId = task.getInitiatorId();
         rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
@@ -441,10 +440,6 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         return HttpResult.builder().code(ErrorCodeEnum.SUCCESS.code).data(idList).msg("查询成功").build();
     }
 
-    private List<Task> getTaskCacheByKey(String key){
-        //根据某些标签
-        return null;
-    }
 
 }
 

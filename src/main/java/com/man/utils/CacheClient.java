@@ -14,6 +14,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+/**
+ * @author 艾莉希雅
+ */
 @Slf4j
 @Component
 public class CacheClient {

@@ -213,12 +213,14 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
     public HttpResult updateUser(UserFrom userFrom) {
         //更新用户
         TUser tUser = new TUser();
+        tUser.setId(AuthenticationUtils.getId());
         tUser.setNickName(userFrom.getNickName());
         tUser.setAchUrl(userFrom.getIcon());
-        update().update(tUser);
+        updateById(tUser);
 
         //更新详细信息
         TUserInfo oldUserInfo = userFrom.getUserInfo();
+        oldUserInfo.setUserId(AuthenticationUtils.getId());
         if(oldUserInfo == null){
             return HttpResult.success("修改失败，请重新登录");
         }
@@ -297,7 +299,7 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
         TUser tUser = new TUser();
         tUser.setAchUrl(url);
         tUser.setId(AuthenticationUtils.getId());
-        boolean flag = update().eq("id", AuthenticationUtils.getId()).update(tUser);
+        boolean flag = updateById(tUser);
         if(!flag){
             return HttpResult.fail("上传错误");
         }

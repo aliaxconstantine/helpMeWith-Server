@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.*;
 
+/**
+ * @author 艾莉希雅
+ */
 public class SystemConstants {
     public static final String USER_NICK_NAME_PREFIX = "user_";
     public static final int DEFAULT_PAGE_SIZE = 5;

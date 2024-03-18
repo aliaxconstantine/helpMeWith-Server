@@ -10,7 +10,4 @@
             <result property="message" column="message" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <sql id="Base_Column_List">
-        id,user_id,message
-    </sql>
 </mapper>

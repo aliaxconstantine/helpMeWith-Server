@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * spring doc配置
+ * @author 艾莉希雅
  */
 @Configuration
 public class SpringDocConfig {

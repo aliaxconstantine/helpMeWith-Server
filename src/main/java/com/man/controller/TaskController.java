@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.util.List;
 
+/**
+ * @author 艾莉希雅
+ */
 @ResponseBody
 @RestController
 @Log4j2
@@ -52,7 +55,7 @@ public class TaskController {
         return tasksService.getTaskTime(taskId);
     }
 
-    // 发布任务
+    //发布任务
     @ResponseBody
     @PostMapping("/send")
     public HttpResult publishTask(@Validated @RequestBody TaskForm task) {

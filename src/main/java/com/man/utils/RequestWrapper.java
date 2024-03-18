@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import java.io.*;
 
-// RequestWrapper 内部类
+/**
+ * @author 艾莉希雅
+ */ // RequestWrapper 内部类
 public class RequestWrapper extends HttpServletRequestWrapper {
     private final String body;
 

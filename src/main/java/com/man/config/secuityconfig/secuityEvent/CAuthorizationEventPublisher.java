@@ -13,7 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-//认证事件处理器
+/**
+ * @author 艾莉希雅
+ */ //认证事件处理器
 @Component
 public class CAuthorizationEventPublisher implements AuthorizationEventPublisher {
     private final ApplicationEventPublisher publisher;

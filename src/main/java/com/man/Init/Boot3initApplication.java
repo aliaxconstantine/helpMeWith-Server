@@ -7,6 +7,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
+/**
+ * @author 艾莉希雅
+ */
 @MapperScan("com.man.mapper")
 @ComponentScan(basePackages = {"com.*","com.man.config"})
 @SpringBootApplication()

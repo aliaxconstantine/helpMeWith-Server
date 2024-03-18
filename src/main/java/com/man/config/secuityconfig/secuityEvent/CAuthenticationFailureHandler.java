@@ -15,6 +15,7 @@ import java.io.IOException;
 /**
  * CAuthenticationFailureHandler是一个认证失败处理器，用于处理认证失败的情况。
  *
+ * @author 艾莉希雅
  * @note 该类实现了Spring Security框架中的AuthenticationFailureHandler接口，
  * 当用户认证失败时，系统会调用该类的onAuthenticationFailure方法进行相关处理。
  */

@@ -5,6 +5,9 @@ import cn.hutool.core.lang.Snowflake;
 import java.time.Instant;
 import java.util.Random;
 
+/**
+ * @author 艾莉希雅
+ */
 public class IdUtils {
 
     public static final Snowflake snowflake = new Snowflake();

@@ -11,7 +11,7 @@ spring:
     username: manager
     password: NHNnC6tFeJpF7xGA
     hikari:
-      maximum-pool-size: 20
+      maximum-pool-size: 15
       connection-timeout: 30000
   rabbitmq:
     username: aliax

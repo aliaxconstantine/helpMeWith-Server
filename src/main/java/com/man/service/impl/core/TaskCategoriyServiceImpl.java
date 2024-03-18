@@ -38,6 +38,7 @@ public class TaskCategoriyServiceImpl extends ServiceImpl<TaskCategoriyMapper, T
         return HttpResult.success(rest);
     }
 
+    //创建新任务时候添加标签
     @Override
     public void submitNew(TaskForm taskForm){
         List<String> typelist = Arrays.stream(taskForm.getType()).toList();

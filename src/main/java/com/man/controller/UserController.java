@@ -109,7 +109,8 @@ public class UserController {
     //更新用户资料
     @PostMapping("/me/infoUpdate")
     public HttpResult upInfo(@RequestBody TUserInfo userInfo){
-        boolean flag = tUserInfoService.update().update(userInfo);
+        userInfo.setUserId(AuthenticationUtils.getId());
+        boolean flag = tUserInfoService.updateById(userInfo);
         if(!flag){
             return HttpResult.fail("服务器错误");
         }
@@ -122,15 +123,19 @@ public class UserController {
                                 @RequestParam(name= "pageNum") Integer pageNum){
         return userService.getOtherStar(otherId,pageNum);
     }
-    //获取用户
+    /**
+     * 获取其他用户任务
+     *  **/
     @GetMapping("/other/tasks")
     public HttpResult otherStar(@RequestParam(name = "otherId") Long otherId,
                                 @RequestParam(name= "pageNum") Integer pageNum,
                                 @RequestParam(name="sortKey") Integer sortKey){
-        return tasksService.getOtherTasksBySortKey(otherId,pageNum,sortKey);
+        return tasksService.getOtherTasksBySortKey(otherId,sortKey,pageNum);
     }
 
-    //注销用户
+    /**
+     * 注销用户
+     * **/
     @DeleteMapping("/me")
     public HttpResult deleteUser() {
         //实现注销用户的逻辑
@@ -157,7 +162,7 @@ public class UserController {
             return HttpResult.fail(addFlag.getMsg());
         }
         communicationsService.sendChatMessage("添加好友啦，快来聊天吧！",otherUserId,AuthenticationUtils.getId());
-        return HttpResult.success("添加成功");
+        return HttpResult.success(true);
     }
 
     //删除好友
@@ -168,7 +173,7 @@ public class UserController {
             return HttpResult.fail("删除失败");
         }
         communicationsService.sendChatMessage("对方已经不是您的好友",otherUserId,AuthenticationUtils.getId());
-        return HttpResult.success("删除成功");
+        return HttpResult.success(true);
     }
 
     // 检测用户凭证资质

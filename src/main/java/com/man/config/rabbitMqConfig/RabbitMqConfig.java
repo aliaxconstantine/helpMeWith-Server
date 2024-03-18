@@ -5,6 +5,9 @@ import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @author 艾莉希雅
+ */
 @Configuration
 public class RabbitMqConfig {
     public static final String EXCHANGE_NAME = RabbitMessage.EXCHANGE_NAME;

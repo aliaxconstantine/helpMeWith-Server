@@ -87,8 +87,14 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
 
     @Override
     public HttpResult deFriend(String otherUserId) {
-        if (ifUserId(otherUserId)) return HttpResult.fail("请输入正确的id");
-        boolean flag = removeById(otherUserId);
+        if (ifUserId(otherUserId)) {
+            return HttpResult.fail("请输入正确的id");
+        }
+        Friend friend = query().eq("user_id", AuthenticationUtils.getId()).eq("friend_id", otherUserId).one();
+        if(friend == null){
+            return HttpResult.fail("你还不是对方好友");
+        }
+        boolean flag = (boolean) removeById(friend);
         return (flag)?HttpResult.success("删除成功"):HttpResult.fail("服务器异常");
     }
 

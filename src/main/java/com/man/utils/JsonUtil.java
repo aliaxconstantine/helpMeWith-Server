@@ -4,6 +4,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * @author 艾莉希雅
+ */
 public class JsonUtil {
     public static void printToJson(Object object, HttpServletResponse response) throws IOException {
         ObjectMapper objectMapper= new ObjectMapper();

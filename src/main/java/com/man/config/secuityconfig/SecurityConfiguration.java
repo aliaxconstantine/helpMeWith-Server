@@ -30,6 +30,9 @@ import org.springframework.security.web.session.SessionManagementFilter;
 import static jakarta.servlet.DispatcherType.ERROR;
 import static jakarta.servlet.DispatcherType.FORWARD;
 
+/**
+ * @author 艾莉希雅
+ */
 @EnableWebSecurity
 @Configuration
 @Log4j2

@@ -12,6 +12,9 @@ import java.util.*;
 
 import com.auth0.jwt.*;
 
+/**
+ * @author 艾莉希雅
+ */
 @Component
 @Log4j2
 /**
@@ -42,14 +45,16 @@ public class JWTUtils {
         headerClaims.put("alg", "HS256");
         headerClaims.put("typ", "JWT");
         return JWT.create().withHeader(headerClaims)
-                .withIssuer("aliax")//签发人
+                //签发人
+                .withIssuer("aliax")
                 .withIssuedAt(issDate)
                 .withExpiresAt(expireDate)
                 .withClaim("userName", userName)
                 .withClaim("userId",userId)
                 .withClaim("userInfo", userInfo)
                 .withClaim("userAuth", authList)
-                .sign(Algorithm.HMAC256(secret));//密钥
+                //密钥
+                .sign(Algorithm.HMAC256(secret));
     }
 
     /**
