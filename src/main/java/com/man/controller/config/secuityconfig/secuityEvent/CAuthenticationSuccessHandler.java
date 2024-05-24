@@ -1,4 +1,4 @@
-package com.man.config.secuityconfig.secuityEvent;
+package com.man.controller.config.secuityconfig.secuityEvent;
 
 import com.man.dto.ErrorCodeEnum;
 import com.fasterxml.jackson.databind.ObjectMapper;

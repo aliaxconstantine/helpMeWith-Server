@@ -1,4 +1,4 @@
-package com.man.config.rabbitMqConfig;
+package com.man.controller.config.rabbitMqConfig;
 
 import com.man.dto.RabbitMessage;
 import org.springframework.amqp.core.*;

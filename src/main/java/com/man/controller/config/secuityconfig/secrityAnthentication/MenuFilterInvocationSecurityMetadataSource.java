@@ -1,4 +1,4 @@
-package com.man.config.secuityconfig.secrityAnthentication;
+package com.man.controller.config.secuityconfig.secrityAnthentication;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;

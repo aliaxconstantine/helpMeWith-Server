@@ -28,7 +28,6 @@ public class ChatListener {
             key = {RabbitMessage.CHAT_MESSAGE_UPDATE_ROUTING_KEY})
     )
     public void saveMessageQueue(String message){
-        log.info("处理消息中"+ message);
         ChatMessageForm chatMessageForm = JSONUtil.toBean(message, ChatMessageForm.class);
         communicationsService.sendChatMessage(chatMessageForm.getMessage(),chatMessageForm.getTargetId().toString(),chatMessageForm.getPublishId());
     }

@@ -2,11 +2,7 @@ package com.man.controller.webChatSocket;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.man.dto.ChatMessageForm;
-import com.man.dto.HttpResult;
 import com.man.dto.RabbitMessage;
-import com.man.utils.AuthenticationUtils;
-import com.man.utils.JsonUtil;
-import jakarta.annotation.Resource;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
@@ -14,13 +10,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import static com.man.dto.RabbitMessage.CHAT_MESSAGE_UPDATE_ROUTING_KEY;
 
 @Controller

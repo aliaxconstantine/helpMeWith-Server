@@ -40,4 +40,8 @@ public interface TUserService extends IService<TUser> {
     HttpResult rePassword(String password);
 
     HttpResult updateAavatar(String url);
+
+    HttpResult getAllUser();
+
+    HttpResult delectUser(String userId);
 }

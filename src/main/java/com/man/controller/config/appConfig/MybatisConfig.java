@@ -1,4 +1,4 @@
-package com.man.config.appConfig;
+package com.man.controller.config.appConfig;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;

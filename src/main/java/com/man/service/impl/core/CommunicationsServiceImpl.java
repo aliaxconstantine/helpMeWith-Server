@@ -7,6 +7,7 @@ import com.man.mapper.CommunicationsMapper;
 import com.man.mapper.TRechatMapper;
 import com.man.service.CoreService.CommunicationsService;
 import com.man.utils.AuthenticationUtils;
+import com.man.utils.CacheClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,13 @@ import java.sql.Timestamp;
 @Service
 public class CommunicationsServiceImpl extends ServiceImpl<CommunicationsMapper, Communication> implements CommunicationsService {
 
+    private final CacheClient cacheClient;
     public final CommunicationsMapper communicationsMapper;
     public final TRechatMapper rechatMapper;
 
     @Autowired
-    public CommunicationsServiceImpl(CommunicationsMapper communicationsMapper, TRechatMapper rechatMapper) {
+    public CommunicationsServiceImpl(CacheClient cacheClient, CommunicationsMapper communicationsMapper, TRechatMapper rechatMapper) {
+        this.cacheClient = cacheClient;
         this.communicationsMapper = communicationsMapper;
         this.rechatMapper = rechatMapper;
     }

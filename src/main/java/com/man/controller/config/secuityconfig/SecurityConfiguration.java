@@ -1,7 +1,8 @@
-package com.man.config.secuityconfig;
-import com.man.config.secuityconfig.secuityEvent.CAuthenticationFailureHandler;
-import com.man.config.secuityconfig.secuityEvent.CAuthenticationSuccessHandler;
+package com.man.controller.config.secuityconfig;
+import com.man.controller.config.secuityconfig.secuityEvent.CAuthenticationFailureHandler;
+import com.man.controller.config.secuityconfig.secuityEvent.CAuthenticationSuccessHandler;
 import com.man.config.secuityconfig.secuityfliter.*;
+import com.man.controller.config.secuityconfig.secuityfliter.*;
 import com.man.service.impl.Security.UserServiceImpl;
 import com.man.utils.SystemConstants;
 import jakarta.servlet.Filter;
@@ -23,9 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.session.SessionManagementFilter;
 
 import static jakarta.servlet.DispatcherType.ERROR;
 import static jakarta.servlet.DispatcherType.FORWARD;

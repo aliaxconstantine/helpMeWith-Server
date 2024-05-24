@@ -1,4 +1,4 @@
-package com.man.config.secuityconfig.secuityEvent;
+package com.man.controller.config.secuityconfig.secuityEvent;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authorization.AuthorityAuthorizationDecision;

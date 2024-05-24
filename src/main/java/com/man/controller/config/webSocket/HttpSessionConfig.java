@@ -1,4 +1,4 @@
-package com.man.config.webSocket;
+package com.man.controller.config.webSocket;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.HandshakeResponse;

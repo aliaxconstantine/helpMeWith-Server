@@ -305,6 +305,16 @@ public class TUserServiceImpl extends ServiceImpl<UserMapper, TUser> implements 
         }
         return HttpResult.success(true);
     }
+
+    @Override
+    public HttpResult getAllUser() {
+        return HttpResult.success(userMapper.selectList(null));
+    }
+
+    @Override
+    public HttpResult delectUser(String userId) {
+        return HttpResult.success(userMapper.deleteById(userId));
+    }
 }
 
 

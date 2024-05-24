@@ -1,4 +1,4 @@
-package com.man.config.secuityconfig.secuityfliter;
+package com.man.controller.config.secuityconfig.secuityfliter;
 import com.man.dto.LoginForm;
 import com.man.dto.SecurityUser;
 import com.man.entity.Security.SysUser;

@@ -12,6 +12,7 @@ import com.man.mapper.*;
 import com.man.service.CoreService.TUserService;
 import com.man.utils.*;
 import com.man.service.CoreService.TasksService;
+import org.redisson.api.RedissonClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Distance;
@@ -51,9 +52,10 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
 
     private final OrdersMapper ordersMapper;
     private final RabbitTemplate rabbitTemplate;
+    private final RedissonClient redissonClient;
 
     @Autowired
-    public TasksServiceImpl(TUserService tUserService, StringRedisTemplate stringRedisTemplate, CacheClient cacheClient, PastimesMapper pastimesMapper, TaskCategoriyMapper taskCategoriyMapper, TasksMapper tasksMapper, TaskCategoriyMapper taskCategoriyMapper1, TaskTimesMapper taskTimesMapper, OrdersMapper ordersMapper, RabbitTemplate rabbitTemplate) {
+    public TasksServiceImpl(TUserService tUserService, StringRedisTemplate stringRedisTemplate, CacheClient cacheClient, PastimesMapper pastimesMapper, TaskCategoriyMapper taskCategoriyMapper, TasksMapper tasksMapper, TaskCategoriyMapper taskCategoriyMapper1, TaskTimesMapper taskTimesMapper, OrdersMapper ordersMapper, RabbitTemplate rabbitTemplate, RedissonClient redissonClient) {
         this.tUserService = tUserService;
         this.stringRedisTemplate = stringRedisTemplate;
         this.cacheClient = cacheClient;
@@ -63,6 +65,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         this.taskTimesMapper = taskTimesMapper;
         this.ordersMapper = ordersMapper;
         this.rabbitTemplate = rabbitTemplate;
+        this.redissonClient = redissonClient;
     }
 
     //创建订单
@@ -221,6 +224,16 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         return HttpResult.success(taskList);
     }
 
+    @Override
+    public HttpResult getAllTask() {
+        return HttpResult.success(tasksMapper.selectList(null));
+    }
+
+    @Override
+    public HttpResult delectTask(String taskId) {
+        return HttpResult.success(tasksMapper.deleteById(taskId));
+    }
+
     //获取订单详情页
     @Override
     public HttpResult queryTaskById(Long id) {
@@ -252,6 +265,8 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         //删除缓存
         if(isSu){
             stringRedisTemplate.delete(RedisConstants.CACHE_TASK_KEY + id);
+            //存储布隆过滤器
+            redissonClient.getBloomFilter("task").add(id);
             return HttpResult.builder().code(ErrorCodeEnum.SUCCESS.code).data(true).build();
         }
         else {
@@ -318,7 +333,6 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
     //获取默认的主页任务
     @Override
     public HttpResult getTasksByTime(Integer pageNum) {
-        //先进行缓存
         var data = query().eq("status",TaskEnum.FALSE.state)
                 .page(new Page<>(pageNum, SystemConstants.DEFAULT_PAGE_SIZE)).getRecords();
         if(data == null){
@@ -364,6 +378,10 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         }
         //修改任务状态
         task.setStatus(TaskEnum.UNFINISH.state);
+        //修改任务截止时间
+        TaskTimes taskTimes = taskTimesMapper.selectOne(new QueryWrapper<TaskTimes>().eq("task_id",taskId));
+        taskTimes.setFinishTime(Timestamp.valueOf(LocalDateTime.now()));
+        taskTimesMapper.update(taskTimes,new QueryWrapper<TaskTimes>().eq("id",taskTimes.getId()));
         //任务完成后向承接方发送消息
         Long initiatorId = task.getInitiatorId();
         rabbitTemplate.convertAndSend(RabbitMessage.EXCHANGE_NAME, RabbitMessage.SYSTEM_INFO_ROUTING_KEY,
@@ -400,7 +418,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         int end = pageNum * SystemConstants.DEFAULT_PAGE_SIZE;
         //获取GEO 数据 圆心，距离，半径
         //主页展示任务key
-        String key = RedisConstants.TASK_GEO_KEY + 2;
+        String key = RedisConstants.TASK_GEO_KEY + 5;
         return getTasksHttpResult(x, y, form, end, key);
     }
 
@@ -408,7 +426,7 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
         GeoResults<RedisGeoCommands.GeoLocation<String>> search = stringRedisTemplate.opsForGeo().search(
                 key, //查询需要的key
                 GeoReference.fromCoordinate(x, y),//查询圆心
-                new Distance(5000),//查询坐标
+                new Distance(500000000),//查询坐标
                 RedisGeoCommands.GeoSearchCommandArgs.newGeoSearchArgs().includeDistance().limit(end)
         );
         //获取id并进行分页处理
@@ -431,8 +449,9 @@ public class TasksServiceImpl extends ServiceImpl<TasksMapper, Task> implements 
                 }
         );
         String idStr = StrUtil.join("",ids);
+        log.error(idStr);
         //根据id查询Task
-        List<Task> idList = query().in("id", ids).eq("status",2).last("ORDER BY FIELD(id," + idStr + ")").list();
+        List<Task> idList = query().in("id", ids).eq("status",5).last("ORDER BY FIELD(id," + idStr + ")").list();
         for(Task task:idList){
             task.setDistance(distanceMap.get(task.getId().toString()).getValue());
         }

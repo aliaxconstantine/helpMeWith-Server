@@ -123,8 +123,8 @@ public class TaskController {
     @GetMapping("/tasks")
     @ResponseBody
     public HttpResult getTasksByType(
-             @NotNull @RequestParam(name = "x",required = false) Double x,
-             @NotNull @RequestParam(name = "y",required = false) Double y,
+             @NotNull @RequestParam(name = "x" , required = false) Double x,
+             @NotNull @RequestParam(name = "y" , required = false) Double y,
              @NotNull @RequestParam(name = "pageNum",required = false) Integer pageNum) {
         if (x != null && y!= null) {
             // 按照指定属性排序
@@ -151,7 +151,7 @@ public class TaskController {
         return tasksService.getTypeTasks(type,pageNum);
     }
 
-
+    //承接任务
     @PostMapping("/{taskId}/accept")
     public HttpResult acceptTask(@PathVariable(name = "taskId") Long taskId) {
         return tasksService.acceptTask(taskId);
@@ -163,16 +163,18 @@ public class TaskController {
         return tasksService.successTask(taskId.toString());
     }
 
+    //上传任务进度
     @PostMapping("/progress")
     public HttpResult submitTaskProgress(@RequestBody List<String> imagesList,@RequestParam(name="taskId") Long taskId) {
         return taskImagesService.submitTaskProgress(imagesList,taskId);
     }
 
+    //获取任务进度
     @GetMapping("/tasks/progress")
     public HttpResult getTaskProgresses(@RequestParam(name = "taskId") Long taskId){
         return taskImagesService.getTaskProgresses(taskId);
     }
-
+    //确认任务完成
     @PostMapping("/tasks/confirm")
     public HttpResult confirmTaskCompletion(@RequestParam(name = "taskId") Long taskId) {
         return tasksService.confirmTaskCompletion(taskId);

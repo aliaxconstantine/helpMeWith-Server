@@ -1,4 +1,4 @@
-package com.man.config.secuityconfig.secuityfliter;
+package com.man.controller.config.secuityconfig.secuityfliter;
 import com.man.utils.ResponseUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package com.man.config.appConfig;
+package com.man.controller.config.appConfig;
 import com.man.Logger.CorsFilter;
 import com.man.Logger.RequestLogFilter;
 import lombok.extern.log4j.Log4j2;

@@ -22,5 +22,4 @@ public class TaskCategoryController {
     public HttpResult getAllCategory(){
         return taskCategoryService.getAllCate();
     }
-
 }

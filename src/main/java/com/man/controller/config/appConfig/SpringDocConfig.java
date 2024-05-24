@@ -1,4 +1,4 @@
-package com.man.config.appConfig;
+package com.man.controller.config.appConfig;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;

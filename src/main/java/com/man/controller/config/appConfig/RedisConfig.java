@@ -1,4 +1,4 @@
-package com.man.config.appConfig;
+package com.man.controller.config.appConfig;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

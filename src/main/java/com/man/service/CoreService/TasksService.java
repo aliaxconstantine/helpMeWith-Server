@@ -51,4 +51,8 @@ public interface TasksService extends IService<Task> {
     HttpResult getTypeTasks(String type, Integer pageNum);
 
     HttpResult getByKey(String enkey,Integer pageNum);
+
+    HttpResult getAllTask();
+
+    HttpResult delectTask(String taskId);
 }

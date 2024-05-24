@@ -1,4 +1,4 @@
-package com.man.config.secuityconfig.secuityfliter;
+package com.man.controller.config.secuityconfig.secuityfliter;
 
 import com.man.dto.HttpResult;
 import com.man.utils.*;

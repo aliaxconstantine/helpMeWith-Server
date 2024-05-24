@@ -10,6 +10,7 @@ import com.man.service.CoreService.TaskMessageService;
 import com.man.mapper.TaskMessageMapper;
 import com.man.utils.CacheClient;
 import com.man.utils.RedisConstants;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -28,11 +29,13 @@ public class TaskMessageServiceImpl extends ServiceImpl<TaskMessageMapper, TaskM
 
     private final UserMapper userMapper;
     private final StringRedisTemplate stringRedisTemplate;
+    private final RedissonClient redissonClient;
 
     @Autowired
-    public TaskMessageServiceImpl(UserMapper userMapper, StringRedisTemplate stringRedisTemplate) {
+    public TaskMessageServiceImpl(UserMapper userMapper, StringRedisTemplate stringRedisTemplate, RedissonClient redissonClient) {
         this.userMapper = userMapper;
         this.stringRedisTemplate = stringRedisTemplate;
+        this.redissonClient = redissonClient;
     }
 
     //获取任务下评论
@@ -72,7 +75,7 @@ public class TaskMessageServiceImpl extends ServiceImpl<TaskMessageMapper, TaskM
     public HttpResult getLike(String messageId) {
         String key = RedisConstants.MESSAGE_KEY+messageId;
         //缓存获取
-        CacheClient client = new CacheClient(stringRedisTemplate);
+        CacheClient client = new CacheClient(stringRedisTemplate, redissonClient);
         Long num = client.queryWithPassThrough(key, messageId, TaskMessage.class, id -> getById(messageId), RedisConstants.Message_TTL, TimeUnit.HOURS).getLikeNum();
         if(ObjUtil.isNull(num)){
             return HttpResult.fail("获取点赞数失败");

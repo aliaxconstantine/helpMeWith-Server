@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -21,10 +22,13 @@ import java.util.function.Function;
 @Component
 public class CacheClient {
     private final StringRedisTemplate stringRedisTemplate;
+
+    private final RedissonClient redissonClient;
     private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
 
-    public CacheClient(StringRedisTemplate stringRedisTemplate) {
+    public CacheClient(StringRedisTemplate stringRedisTemplate, RedissonClient redissonClient) {
         this.stringRedisTemplate = stringRedisTemplate;
+        this.redissonClient = redissonClient;
     }
     //不同过期时间
 
@@ -39,7 +43,12 @@ public class CacheClient {
         redisData.setExpireTime(LocalDateTime.now().plusSeconds(timeUnit.toSeconds(time)));
         stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(value));
     }
-    //缓存穿透
+
+
+    /*
+    * 缓存查询方法
+    * 使用布隆过滤器解决缓存穿透
+    * */
     public <R,ID> R queryWithPassThrough(String keyPrefix, ID id, Class<R> type, Function<ID,R> dbFallback,Long time,TimeUnit unit){
         //设置缓存查询的key
         String key = keyPrefix + id;
@@ -53,14 +62,14 @@ public class CacheClient {
         if(json != null){
             return null;
         }
+        redissonClient.getBloomFilter("task");
         //数据库查询
         R r = dbFallback.apply(id);
-        //如果查询到为null，则存空字符
-        if(r == null){
-            stringRedisTemplate.opsForValue().set(key,"", RedisConstants.CACHE_NULL_TTL,TimeUnit.MINUTES);
+        //如果查询到为null，则不存在该id，返回null
+        if(!BooleanUtil.isTrue(redissonClient.getBloomFilter("task").contains(id))){
             return null;
         }
-        //查询到则存储数据
+        //查询到则缓存数据
         this.set(key,r,time,unit);
         return r;
     }
