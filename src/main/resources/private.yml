@@ -1,19 +1,19 @@
 spring:
   data:
     redis:
-      host: 39.100.140.88
-      port: 6379
-      password: kstdalxy123
+      host: 
+      port: 
+      password: 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://39.100.140.88:3306/manager
-    username: manager
-    password: NHNnC6tFeJpF7xGA
+    url: 
+    username:
+    password: 
     hikari:
       maximum-pool-size: 10
       connection-timeout: 30000
   rabbitmq:
-    username: aliax
-    password: kstdalxy123
-    host: 39.100.140.88
+    username:
+    password: 
+    host: 
