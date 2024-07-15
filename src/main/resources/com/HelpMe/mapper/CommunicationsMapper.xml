@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.HelpMe.mapper.CommunicationsMapper">
+
+    <select id="getCommunicationListById" resultType="com.HelpMe.Entity.core.Communication">
+        SELECT * FROM communication WHERE
+            (sender_user_id = #{userId} AND receiver_user_id = #{otherId}) OR
+            (sender_user_id = #{otherId} AND receiver_user_id = #{userId})
+            ORDER BY date
+    </select>
+</mapper>

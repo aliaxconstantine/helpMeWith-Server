@@ -22,12 +22,12 @@ spring:
     static-path-pattern: "/data/**"
   config:
     import:
-      - classpath:/private.yml
-      - classpath:/redis.yml
-      - classpath:/swagger.yml
-      - classpath:/rabbitmq.yml
+      - classpath:private.yml
+      - classpath:redis.yml
+      - classpath:swagger.yml
+      - classpath:rabbitmq.yml
   application:
-    name: man
+    name: HelpMe
 
 server:
   port: 9997
@@ -36,10 +36,10 @@ logging:
   pattern:
     dateformat: mm:ss.SSS
   level:
-    com: debug
+    com: error
 
 mybatis-plus:
-  type-aliases-package: com.man.entity # 别名扫描包
+  type-aliases-package: com.HelpMe.Entity # 别名扫描包
   mapper-locations: classpath:mapper/*.xml
   configuration:
     #驼峰
@@ -51,5 +51,3 @@ mybatis-plus:
       id-type: assign_id
       #只更新非空
       update-strategy: not_null
-
-

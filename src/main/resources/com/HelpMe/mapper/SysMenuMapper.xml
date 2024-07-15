@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.HelpMe.mapper.SysMenuMapper">
+    <select id="permissionByUserId" resultType="java.lang.String">
+        SELECT r.code
+        FROM sys_rule r
+                 JOIN sys_menu_rule mr ON r.id = mr.rid
+                 JOIN sys_user_rule ur ON mr.mid = ur.menu_id WHERE ur.user_id = #{userId};
+    </select>
+    <insert id="addRuleUser">
+        INSERT INTO sys_user_rule(USER_ID, menu_id) VALUES(#{userId},#{ruleId});
+    </insert>
+</mapper>
